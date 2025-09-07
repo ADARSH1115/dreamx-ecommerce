@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { FiStar, FiHeart, FiShoppingCart } from 'react-icons/fi'
 import { useCart } from '@/context/CartContext'
 
@@ -133,13 +134,15 @@ export default function FeaturedProducts() {
             >
               {/* Product Image */}
               <div className="relative overflow-hidden">
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  width={500}
-                  height={300}
-                  className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-                />
+                <Link href={`/products/${product._id}`}>
+                  <Image
+                    src={product.image}
+                    alt={product.name}
+                    width={500}
+                    height={300}
+                    className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300 cursor-pointer"
+                  />
+                </Link>
                 
                 {/* Discount Badge */}
                 {product.originalPrice > product.price && (
@@ -174,7 +177,9 @@ export default function FeaturedProducts() {
                 </div>
                 
                 <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                  {product.name}
+                  <Link href={`/products/${product._id}`} className="hover:text-primary-600 transition-colors">
+                    {product.name}
+                  </Link>
                 </h3>
                 
                 {/* Rating */}

@@ -1,8 +1,12 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import { signIn, getSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi'
+import { FaGoogle, FaFacebook } from 'react-icons/fa'
+import toast from 'react-hot-toast'
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -11,7 +15,9 @@ export default function LoginPage() {
   })
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isSocialLoading, setIsSocialLoading] = useState(false)
   const { login } = useAuth()
+  const router = useRouter()
 
   const handleChange = (e) => {
     setFormData({
@@ -26,6 +32,28 @@ export default function LoginPage() {
     
     await login(formData.email, formData.password)
     setIsLoading(false)
+  }
+
+  const handleSocialLogin = async (provider) => {
+    try {
+      setIsSocialLoading(true)
+      const result = await signIn(provider, {
+        callbackUrl: '/',
+        redirect: false
+      })
+
+      if (result?.error) {
+        toast.error(`${provider} login failed. Please try again.`)
+      } else if (result?.ok) {
+        toast.success(`Successfully logged in with ${provider}!`)
+        router.push('/')
+      }
+    } catch (error) {
+      console.error(`${provider} login error:`, error)
+      toast.error(`${provider} login failed. Please try again.`)
+    } finally {
+      setIsSocialLoading(false)
+    }
   }
 
   return (
@@ -137,11 +165,21 @@ export default function LoginPage() {
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-3">
-              <button className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                <span>Google</span>
+              <button 
+                onClick={() => handleSocialLogin('google')}
+                disabled={isSocialLoading}
+                className="w-full inline-flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <FaGoogle className="text-red-500 mr-2" />
+                {isSocialLoading ? 'Loading...' : 'Google'}
               </button>
-              <button className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                <span>Facebook</span>
+              <button 
+                onClick={() => handleSocialLogin('facebook')}
+                disabled={isSocialLoading}
+                className="w-full inline-flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <FaFacebook className="text-blue-600 mr-2" />
+                {isSocialLoading ? 'Loading...' : 'Facebook'}
               </button>
             </div>
           </div>

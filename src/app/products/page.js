@@ -226,13 +226,15 @@ export default function ProductsPage() {
                   className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 group"
                 >
                   <div className="relative overflow-hidden">
-                    <Image
-                      src={product.images[0]?.url || '/placeholder.jpg'}
-                      alt={product.name}
-                      width={400}
-                      height={300}
-                      className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
+                    <Link href={`/products/${product._id}`}>
+                      <Image
+                        src={product.images[0]?.url || '/placeholder.jpg'}
+                        alt={product.name}
+                        width={400}
+                        height={300}
+                        className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300 cursor-pointer"
+                      />
+                    </Link>
                     
                     {product.onSale && (
                       <div className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
@@ -263,7 +265,9 @@ export default function ProductsPage() {
                     </div>
                     
                     <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                      {product.name}
+                      <Link href={`/products/${product._id}`} className="hover:text-primary-600 transition-colors">
+                        {product.name}
+                      </Link>
                     </h3>
                     
                     <div className="flex items-center mb-3">

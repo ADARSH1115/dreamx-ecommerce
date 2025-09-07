@@ -16,8 +16,16 @@ const UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, 'Password is required'],
+    required: function() {
+      // Password is required only for credential-based accounts (not social logins)
+      return !this.provider || this.provider === 'credentials'
+    },
     minlength: [6, 'Password must be at least 6 characters']
+  },
+  provider: {
+    type: String,
+    enum: ['credentials', 'google', 'facebook'],
+    default: 'credentials'
   },
   role: {
     type: String,
