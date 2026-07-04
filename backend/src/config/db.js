@@ -3,6 +3,9 @@ const mongoose = require('mongoose')
 const MONGODB_URI = process.env.MONGODB_URI
 
 if (!MONGODB_URI) {
+  // TEMPORARY DIAGNOSTIC — remove once the env var issue is resolved.
+  // Logs only key names, never values.
+  console.error('DEBUG: all env var names visible to this function:', Object.keys(process.env).sort())
   throw new Error('Please define the MONGODB_URI environment variable inside .env')
 }
 
