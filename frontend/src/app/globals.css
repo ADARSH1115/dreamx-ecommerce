@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: system-ui, sans-serif;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-surface text-dark transition-colors duration-200;
+  }
+
+  .dark body {
+    @apply bg-dark text-gray-100;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-surface;
+  }
+}
+
+@layer components {
+  /* Legacy utility classes kept for any not-yet-migrated markup;
+     new code should use components/ui/Button.js and Card.js instead. */
+  .btn-primary {
+    @apply inline-flex items-center justify-center h-12 px-6 rounded-2xl bg-primary-600 text-white font-semibold shadow-soft hover:bg-primary-700 hover:shadow-card active:scale-[0.98] transition-all duration-200;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center h-12 px-6 rounded-2xl bg-white text-dark font-semibold border border-border hover:border-primary-500 hover:text-primary-600 active:scale-[0.98] transition-all duration-200;
+  }
+
+  .card {
+    @apply bg-card rounded-2xl shadow-card border border-border/60 p-6 transition-shadow duration-200;
+  }
+
+  .input-field {
+    @apply w-full h-[52px] px-4 rounded-2xl border border-border focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200;
+  }
+}

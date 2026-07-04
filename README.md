@@ -21,19 +21,42 @@ A full-stack ecommerce platform built with Next.js, React, Tailwind CSS, and Mon
 
 ## 🛠️ Tech Stack
 
-- **Frontend:** Next.js 14, React 18, Tailwind CSS
-- **Backend:** Node.js, Next.js API Routes
+- **Frontend:** Next.js 14, React 18, Tailwind CSS — standalone app in `frontend/`
+- **Backend:** Node.js, Express — standalone API server in `backend/`
 - **Database:** MongoDB Atlas with Mongoose
 - **Authentication:** JWT, bcryptjs
 - **State Management:** React Context
 - **Icons:** React Icons
-- **Deployment:** Vercel
+
+## 📁 Project Structure
+
+This is a monorepo with two independent projects that talk to each other over
+HTTP — there is no shared server-side code between them.
+
+```
+backend/                 Express API server
+├── server.js            Entry point
+├── src/
+│   ├── config/db.js     MongoDB connection
+│   ├── middleware/auth.js
+│   ├── models/          User, Product, Order (Mongoose)
+│   └── routes/          auth, products, orders, admin
+└── scripts/seed.js      Dev-only product seeder
+
+frontend/                Next.js app
+└── src/
+    ├── app/             Pages (App Router)
+    ├── components/
+    ├── context/         AuthContext, CartContext
+    ├── hooks/           useRequireAuth (client-side route guard)
+    └── lib/apiClient.js Backend base URL
+```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
-- MongoDB Atlas account
+- Node.js 18+
+- MongoDB Atlas account (or local MongoDB)
 - Git
 
 ### Installation
@@ -44,74 +67,42 @@ A full-stack ecommerce platform built with Next.js, React, Tailwind CSS, and Mon
    cd dreamx-ecommerce
    ```
 
-2. **Install dependencies**
+2. **Install dependencies** (installs both `frontend/` and `backend/` via npm workspaces)
    ```bash
    npm install
    ```
 
-3. **Environment Setup**
-   Create `.env.local` file:
-   ```env
-   MONGODB_URI=your_mongodb_connection_string
-   JWT_SECRET=your_jwt_secret_key
-   NEXTAUTH_SECRET=your_nextauth_secret
-   NEXTAUTH_URL=http://localhost:3000
+3. **Configure the backend**
+   ```bash
+   cp backend/.env.example backend/.env
+   # fill in MONGODB_URI and JWT_SECRET
    ```
 
-4. **Run the development server**
+4. **Configure the frontend**
+   ```bash
+   cp frontend/.env.local.example frontend/.env.local
+   # NEXT_PUBLIC_API_URL defaults to http://localhost:4000
+   ```
+
+5. **(Optional) seed sample products**
+   ```bash
+   npm run seed
+   ```
+
+6. **Run both apps**
    ```bash
    npm run dev
    ```
-
-5. **Open in browser**
-   Visit [http://localhost:3000](http://localhost:3000)
-
-## 📁 Project Structure
-
-```
-src/
-├── app/                # Next.js 14 App Router
-│   ├── api/           # API routes
-│   ├── auth/          # Authentication pages
-│   ├── cart/          # Shopping cart page
-│   ├── products/      # Product pages
-│   └── layout.js      # Root layout
-├── components/        # React components
-│   ├── Header.js      # Navigation header
-│   ├── Footer.js      # Site footer
-│   ├── Hero.js        # Homepage hero
-│   └── ...
-├── context/          # React Context providers
-│   ├── AuthContext.js # Authentication state
-│   └── CartContext.js # Shopping cart state
-├── lib/             # Utility functions
-└── models/          # MongoDB schemas
-```
+   This starts the backend on [http://localhost:4000](http://localhost:4000) and the
+   frontend on [http://localhost:3000](http://localhost:3000). To run them separately,
+   use `npm run dev -w backend` / `npm run dev -w frontend` in two terminals.
 
 ## 🌐 Deployment
 
-### Deploy to Vercel
-
-1. **Push to GitHub** (if not already done)
-   ```bash
-   git add .
-   git commit -m "Ready for deployment"
-   git push origin main
-   ```
-
-2. **Deploy to Vercel**
-   - Go to [vercel.com](https://vercel.com)
-   - Import your GitHub repository
-   - Add environment variables
-   - Deploy!
-
-### Environment Variables for Production
-```env
-MONGODB_URI=your_production_mongodb_uri
-JWT_SECRET=your_strong_jwt_secret
-NEXTAUTH_SECRET=your_nextauth_secret
-NEXTAUTH_URL=https://your-domain.vercel.app
-```
+Deploy `frontend/` and `backend/` as two separate services (e.g. frontend on
+Vercel, backend on Render/Railway/Fly). Set `NEXT_PUBLIC_API_URL` on the
+frontend to the backend's public URL, and `FRONTEND_URL` on the backend to
+the frontend's public URL (used for CORS).
 
 ## 🛒 Key Features Explained
 
@@ -151,23 +142,18 @@ NEXTAUTH_URL=https://your-domain.vercel.app
 ### Products
 - `GET /api/products` - Get all products
 - `POST /api/products` - Create product (admin)
-- `GET /api/products/[id]` - Get single product
+- `GET /api/products/:id` - Get single product
 
-### Database Seeding
-- `POST /api/seed/products` - Seed sample products
+### Orders (requires auth)
+- `GET /api/orders` - List the current user's orders (admins: `?all=true` for every order)
+- `POST /api/orders` - Place an order
+- `GET /api/orders/:id` - Get a single order
+- `PATCH /api/orders/:id` - Update order status (admin)
 
-## 🧪 Testing
+### Admin
+- `GET /api/admin/users` - List users (admin)
 
-```bash
-# Run tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Generate coverage report
-npm run test:coverage
-```
+All endpoints above are served by `backend/`, at `NEXT_PUBLIC_API_URL`.
 
 ## 🤝 Contributing
 
