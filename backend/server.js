@@ -12,7 +12,6 @@ const usersRoutes = require('./src/routes/users.routes')
 const subscribersRoutes = require('./src/routes/subscribers.routes')
 
 const app = express()
-const PORT = process.env.PORT || 4000
 
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000' }))
 app.use(express.json())
@@ -26,13 +25,22 @@ app.use('/api/admin', adminRoutes)
 app.use('/api/users', usersRoutes)
 app.use('/api/subscribers', subscribersRoutes)
 
-dbConnect()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`DreamX backend listening on http://localhost:${PORT}`)
-    })
+// Every route already calls dbConnect() itself before touching the
+// database, so a failure here just gets retried on the next request
+// instead of taking the whole process down with it.
+dbConnect().catch((error) => {
+  console.error('Failed to connect to MongoDB:', error)
+})
+
+// On Vercel (and other serverless platforms) this file is imported as a
+// handler, not run directly — app.listen() would hold the function open
+// forever. Only listen when actually executed as a script (`node server.js`,
+// which is also what nodemon and platforms like Render/Railway do).
+if (require.main === module) {
+  const PORT = process.env.PORT || 4000
+  app.listen(PORT, () => {
+    console.log(`DreamX backend listening on http://localhost:${PORT}`)
   })
-  .catch((error) => {
-    console.error('Failed to connect to MongoDB:', error)
-    process.exit(1)
-  })
+}
+
+module.exports = app
