@@ -1,32 +1,38 @@
 # 🛍️ DreamX - Modern Ecommerce Website
 
-A full-stack ecommerce platform built with Next.js, React, Tailwind CSS, and MongoDB. Features modern UI, shopping cart, user authentication, and responsive design.
+A full-stack ecommerce platform built with Next.js, Express, MongoDB, and Tailwind CSS. Features a premium, animated storefront, shopping cart with a slide-out drawer, wishlist, product comparison, flash sales, and JWT authentication.
 
 ![DreamX Ecommerce](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)
 ![React](https://img.shields.io/badge/React-18-blue?style=for-the-badge&logo=react)
+![Express](https://img.shields.io/badge/Express-Node.js-black?style=for-the-badge&logo=express)
 ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green?style=for-the-badge&logo=mongodb)
 ![Tailwind](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwind-css)
 
 ## 🌟 Features
 
-- ✨ **Modern UI/UX** - Beautiful design with Tailwind CSS
-- 🛒 **Shopping Cart** - Add/remove products with persistent cart
-- 🔐 **User Authentication** - Secure login/register with JWT
-- 📱 **Responsive Design** - Works perfectly on all devices  
-- 🏷️ **Product Categories** - Browse products by categories
-- 🔍 **Product Search** - Find products easily
-- 💳 **Payment Ready** - Stripe integration prepared
-- 📧 **Newsletter** - Email subscription with validation
-- 🚀 **Fast Performance** - Next.js 14 with App Router
+- ✨ **Premium UI/UX** — glassmorphism navbar, animated hero, dark mode, page transitions (Framer Motion)
+- 🛒 **Shopping Cart** — persistent cart with a slide-out drawer and a dedicated cart page
+- ❤️ **Wishlist** — save products to your account, synced to the database
+- ⚖️ **Compare Products** — compare up to 4 products side by side by specification
+- 🔐 **User Authentication** — secure login/register with JWT
+- 🏷️ **Product Categories** — mega menu + category grid with live product counts
+- 🔍 **Product Search** — live search-as-you-type, recent searches, popular products
+- ⚡ **Flash Sales** — live countdown on time-limited deals
+- 🔥 **Best Sellers** — ranked from real order history, not guesses
+- 🎯 **Recommended & Recently Viewed** — per-product suggestions and browsing history
+- 📧 **Newsletter** — real subscriber capture (backend-persisted)
+- 💳 **Payment Ready** — Stripe dependency wired into the backend for future checkout integration
+- 📱 **Responsive Design** — works on desktop, tablet, and mobile
+- 🚀 **Fast Performance** — Next.js 14 App Router, code-split below-the-fold sections
 
 ## 🛠️ Tech Stack
 
-- **Frontend:** Next.js 14, React 18, Tailwind CSS — standalone app in `frontend/`
+- **Frontend:** Next.js 14, React 18, Tailwind CSS, Framer Motion, Lucide React — standalone app in `frontend/`
 - **Backend:** Node.js, Express — standalone API server in `backend/`
-- **Database:** MongoDB Atlas with Mongoose
+- **Database:** MongoDB with Mongoose
 - **Authentication:** JWT, bcryptjs
-- **State Management:** React Context
-- **Icons:** React Icons
+- **State Management:** React Context (Auth, Cart, Wishlist)
+- **Icons:** Lucide React (UI), React Icons (brand/social icons only)
 
 ## 📁 Project Structure
 
@@ -34,29 +40,30 @@ This is a monorepo with two independent projects that talk to each other over
 HTTP — there is no shared server-side code between them.
 
 ```
-backend/                 Express API server
-├── server.js            Entry point
+backend/                     Express API server
+├── server.js                Entry point
 ├── src/
-│   ├── config/db.js     MongoDB connection
-│   ├── middleware/auth.js
-│   ├── models/          User, Product, Order (Mongoose)
-│   └── routes/          auth, products, orders, admin
-└── scripts/seed.js      Dev-only product seeder
+│   ├── config/db.js         MongoDB connection
+│   ├── middleware/auth.js   authenticateUser / requireAdmin
+│   ├── models/               User, Product, Order, Subscriber (Mongoose)
+│   └── routes/               auth, products, orders, admin, users (wishlist), subscribers
+└── scripts/seed.js          Dev-only product seeder
 
-frontend/                Next.js app
+frontend/                    Next.js app
 └── src/
-    ├── app/             Pages (App Router)
+    ├── app/                 Pages (App Router) — products, cart, wishlist, compare, admin...
     ├── components/
-    ├── context/         AuthContext, CartContext
-    ├── hooks/           useRequireAuth (client-side route guard)
-    └── lib/apiClient.js Backend base URL
+    │   └── ui/              Shared primitives: Button, Card, Badge, Modal, Skeleton
+    ├── context/             AuthContext, CartContext (incl. cart drawer state), WishlistContext
+    ├── hooks/               useRequireAuth (client-side route guard)
+    └── lib/                 apiClient (backend URL), categories, compare, recentSearches, recentlyViewed
 ```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 18+
-- MongoDB Atlas account (or local MongoDB)
+- MongoDB (Atlas or local)
 - Git
 
 ### Installation
@@ -75,7 +82,8 @@ frontend/                Next.js app
 3. **Configure the backend**
    ```bash
    cp backend/.env.example backend/.env
-   # fill in MONGODB_URI and JWT_SECRET
+   # fill in MONGODB_URI (Atlas connection string, or mongodb://localhost:27017/dreamx
+   # for a local instance) and JWT_SECRET
    ```
 
 4. **Configure the frontend**
@@ -84,7 +92,7 @@ frontend/                Next.js app
    # NEXT_PUBLIC_API_URL defaults to http://localhost:4000
    ```
 
-5. **(Optional) seed sample products**
+5. **Seed sample products**
    ```bash
    npm run seed
    ```
@@ -108,31 +116,40 @@ the frontend's public URL (used for CORS).
 
 ### Shopping Cart
 - Persistent cart using localStorage
-- Add/remove items with quantity control
-- Real-time cart counter in header
-- Cart page with item management
+- Slide-out cart drawer (opens automatically when you add an item) plus a full `/cart` page
+- Quantity controls and live cart counter in the header
+
+### Wishlist & Compare
+- Wishlist is tied to your account and persisted server-side (`User.wishlist`)
+- Compare list is device-local (localStorage); compare up to 4 products by spec on `/compare`
 
 ### Authentication
-- Secure JWT-based authentication
-- Password hashing with bcryptjs
-- Protected routes and API endpoints
-- User registration and login
+- JWT-based authentication with bcrypt password hashing
+- Protected routes (client-side guard) and protected API endpoints (`requireAdmin`/`authenticateUser`)
 
-### Product Management
-- Dynamic product listing
-- Category-based filtering
-- Product search functionality
-- Image optimization with Next.js
+### Product Discovery
+- Category mega menu and grid with live counts from the database
+- Live search-as-you-type, recent searches, and popular products
+- Flash sales (countdown to `saleEndDate`), best sellers (ranked from real `Order` history),
+  recommended products (same category), and recently viewed (localStorage)
+
+### Dark Mode
+- Toggle in the header, persisted to localStorage, respects system preference by default,
+  applied before first paint to avoid a flash of the wrong theme
 
 ## 🎨 Design System
 
-- **Primary Colors:** Blue gradient themes
-- **Typography:** Clean, modern fonts
-- **Components:** Reusable Tailwind components
-- **Responsive:** Mobile-first design approach
-- **Animations:** Smooth transitions and hover effects
+- **Colors:** primary blue (`#2563EB`), accent violet (`#7C3AED`), plus dedicated
+  success/warning/danger tokens — see `frontend/tailwind.config.js`
+- **Typography:** Inter, loaded via `next/font`
+- **Components:** shared primitives in `frontend/src/components/ui/` (Button, Card,
+  Badge, Modal, Skeleton) instead of copy-pasted classes per page
+- **Motion:** Framer Motion for hover/lift, page transitions, and the cart drawer/modals
+- **Responsive:** mobile-first; dark mode via Tailwind's `class` strategy
 
 ## 📚 API Documentation
+
+All endpoints below are served by `backend/`, at `NEXT_PUBLIC_API_URL`.
 
 ### Authentication
 - `POST /api/auth/register` - User registration
@@ -140,8 +157,12 @@ the frontend's public URL (used for CORS).
 - `GET /api/auth/verify` - Verify JWT token
 
 ### Products
-- `GET /api/products` - Get all products
+- `GET /api/products` - List products (supports `category`, `search`, `sort`, `minPrice`,
+  `maxPrice`, `exclude`, `page`, `limit`)
 - `POST /api/products` - Create product (admin)
+- `GET /api/products/categories` - Product counts grouped by category
+- `GET /api/products/flash-sale` - Active on-sale products with a live `saleEndDate`
+- `GET /api/products/best-sellers` - Top products ranked by real units sold
 - `GET /api/products/:id` - Get single product
 
 ### Orders (requires auth)
@@ -150,10 +171,16 @@ the frontend's public URL (used for CORS).
 - `GET /api/orders/:id` - Get a single order
 - `PATCH /api/orders/:id` - Update order status (admin)
 
+### Users
+- `GET /api/users/wishlist` - Get the current user's wishlist
+- `POST /api/users/wishlist/:productId` - Add a product to the wishlist
+- `DELETE /api/users/wishlist/:productId` - Remove a product from the wishlist
+
 ### Admin
 - `GET /api/admin/users` - List users (admin)
 
-All endpoints above are served by `backend/`, at `NEXT_PUBLIC_API_URL`.
+### Subscribers
+- `POST /api/subscribers` - Subscribe an email to the newsletter
 
 ## 🤝 Contributing
 
@@ -179,7 +206,8 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## 🙏 Acknowledgments
 
-- [Next.js](https://nextjs.org/) for the amazing React framework
+- [Next.js](https://nextjs.org/) for the React framework
+- [Express](https://expressjs.com/) for the API server
 - [Tailwind CSS](https://tailwindcss.com/) for the utility-first CSS framework
+- [Framer Motion](https://www.framer.com/motion/) for animation
 - [MongoDB](https://www.mongodb.com/) for the database solution
-- [Vercel](https://vercel.com/) for deployment platform
